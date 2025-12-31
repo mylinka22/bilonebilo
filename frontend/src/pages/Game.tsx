@@ -61,7 +61,6 @@ export default function Game({ onAdminClick }: GameProps) {
 
   const handleDrawCard = () => {
     if (availableQuestions.length === 0) {
-      // Вопросы закончились
       return;
     }
 
@@ -75,22 +74,23 @@ export default function Game({ onAdminClick }: GameProps) {
     );
     setAvailableQuestions(newAvailable);
     
-    // Если карта уже есть, сначала переворачиваем обратно
     if (currentQuestion) {
+      // Переворачиваем карту обратно
       setIsFlipped(false);
+      // Ждем завершения анимации переворота (600ms), меняем текст
       setTimeout(() => {
         setCurrentQuestion(selectedQuestion);
+        // Переворачиваем карту с новым текстом
         setTimeout(() => {
           setIsFlipped(true);
         }, 50);
-      }, 300);
+      }, 600);
     } else {
-      // Если карты нет, сразу показываем новую
+      // Первая карта
       setCurrentQuestion(selectedQuestion);
-      setIsFlipped(false);
       setTimeout(() => {
         setIsFlipped(true);
-      }, 100);
+      }, 50);
     }
   };
 
@@ -104,7 +104,14 @@ export default function Game({ onAdminClick }: GameProps) {
   if (isLoading) {
     return (
       <div className="game-container">
-        <div className="loading">Загрузка вопросов...</div>
+        <div className="loading">
+          <div className="loading-spinner">
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+          </div>
+          <p className="loading-text">Загрузка вопросов...</p>
+        </div>
       </div>
     );
   }
@@ -113,7 +120,8 @@ export default function Game({ onAdminClick }: GameProps) {
     return (
       <div className="game-container">
         <div className="error">
-          <p>Ошибка: {error}</p>
+          <div className="error-icon">⚠️</div>
+          <p className="error-message">Ошибка: {error}</p>
           <button onClick={loadQuestions} className="retry-button">
             Попробовать снова
           </button>
@@ -124,6 +132,12 @@ export default function Game({ onAdminClick }: GameProps) {
 
   return (
     <div className="game-container">
+      <div className="background-decoration">
+        <div className="decoration-circle circle-1"></div>
+        <div className="decoration-circle circle-2"></div>
+        <div className="decoration-circle circle-3"></div>
+      </div>
+      
       <div className="game-header">
         <h1>Было / Не было</h1>
         <p className="subtitle">Вытяните карту и узнайте, что было у других</p>
@@ -138,16 +152,12 @@ export default function Game({ onAdminClick }: GameProps) {
               Начать заново
             </button>
           </div>
+        ) : currentQuestion ? (
+          <Card text={currentQuestion.text} isFlipped={isFlipped} />
         ) : (
-          <>
-            {currentQuestion ? (
-              <Card key={currentQuestion.id} text={currentQuestion.text} isFlipped={isFlipped} />
-            ) : (
-              <div className="card-placeholder">
-                <p>Нажмите "Вытянуть карту" чтобы начать</p>
-              </div>
-            )}
-          </>
+          <div className="card-placeholder">
+            <p>Нажмите "Вытянуть карту" чтобы начать</p>
+          </div>
         )}
       </div>
 

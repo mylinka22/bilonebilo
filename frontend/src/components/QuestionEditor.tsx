@@ -78,8 +78,8 @@ export default function QuestionEditor({ questions, onUpdate }: QuestionEditorPr
           <textarea
             value={newQuestionText}
             onChange={(e) => setNewQuestionText(e.target.value)}
-            placeholder="Введите новый вопрос..."
-            rows={2}
+            placeholder="✨ Введите новый вопрос..."
+            rows={3}
             className="question-input"
           />
           <button
@@ -87,14 +87,17 @@ export default function QuestionEditor({ questions, onUpdate }: QuestionEditorPr
             disabled={isAdding || !newQuestionText.trim()}
             className="add-button"
           >
-            {isAdding ? 'Добавление...' : 'Добавить'}
+            {isAdding ? '⏳ Добавление...' : '➕ Добавить вопрос'}
           </button>
         </div>
       </div>
 
       <div className="questions-list">
         {questions.length === 0 ? (
-          <div className="empty-state">Нет вопросов. Добавьте первый!</div>
+          <div className="empty-state">
+            <div className="empty-icon">📝</div>
+            <p>Нет вопросов. Добавьте первый!</p>
+          </div>
         ) : (
           questions.map((question) => (
             <div key={question.id} className="question-item">

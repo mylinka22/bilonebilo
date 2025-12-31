@@ -46,11 +46,41 @@ function App() {
   }, []);
 
   if (!isInitialized) {
-    return <div>Загрузка...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        gap: '24px'
+      }}>
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '80px'
+        }}>
+          <div style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            border: '4px solid transparent',
+            borderTopColor: '#a78bfa',
+            borderRadius: '50%',
+            animation: 'spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite'
+          }}></div>
+        </div>
+        <p style={{
+          fontSize: '18px',
+          fontWeight: 600,
+          color: '#a78bfa'
+        }}>Загрузка...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="app">
+    <div className="app" style={{ position: 'relative', overflow: 'hidden' }}>
       {isAdminMode ? (
         <Admin onBackToGame={() => setIsAdminMode(false)} />
       ) : (

@@ -16,9 +16,7 @@ export default function Card({ text, isFlipped }: CardProps) {
         }}
         transition={{
           duration: 0.6,
-          type: 'spring',
-          stiffness: 100,
-          damping: 15,
+          ease: "easeInOut",
         }}
         style={{
           transformStyle: 'preserve-3d',

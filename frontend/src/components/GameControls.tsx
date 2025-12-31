@@ -22,17 +22,21 @@ export default function GameControls({
       {hasQuestions ? (
         <>
           <button className="draw-card-button" onClick={onDrawCard}>
-            Вытянуть карту
+            <span className="button-text">Вытянуть карту</span>
+            <span className="button-icon">🎴</span>
           </button>
           {availableCount > 0 && (
             <div className="questions-counter">
-              Осталось карт: {availableCount}
+              <span className="counter-icon">📚</span>
+              <span className="counter-text">Осталось карт:</span>
+              <span className="counter-number">{availableCount}</span>
             </div>
           )}
         </>
       ) : onReset ? (
         <button className="reset-session-button" onClick={onReset}>
-          🔄 Начать заново
+          <span className="button-text">Начать заново</span>
+          <span className="button-icon">🔄</span>
         </button>
       ) : null}
       

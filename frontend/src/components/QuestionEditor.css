@@ -1,141 +1,262 @@
 .question-editor {
-  padding: 20px;
-  max-width: 600px;
+  padding: 24px;
+  max-width: 700px;
   margin: 0 auto;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .editor-header {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .editor-header h2 {
-  margin-bottom: 16px;
-  font-size: 24px;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .add-question-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  background: rgba(26, 26, 62, 0.4);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  border-radius: 20px;
+  border: 2px solid rgba(167, 139, 250, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 .question-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid var(--tg-theme-hint-color);
-  border-radius: 8px;
-  background: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
+  padding: 16px;
+  border: 2px solid rgba(167, 139, 250, 0.3);
+  border-radius: 12px;
+  background: rgba(15, 15, 35, 0.8);
+  color: #ffffff;
   font-size: 16px;
   resize: vertical;
+  min-height: 80px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.question-input:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+  outline: none;
+}
+
+.question-input::placeholder {
+  color: rgba(160, 160, 192, 0.6);
 }
 
 .add-button {
-  background: var(--tg-theme-button-color);
-  color: var(--tg-theme-button-text-color);
-  padding: 12px 24px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 14px 32px;
+  border-radius: 14px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   align-self: flex-start;
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(108, 92, 231, 0.5);
+}
+
+.add-button:active {
+  transform: scale(0.98);
 }
 
 .add-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .questions-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 32px;
 }
 
 .question-item {
-  background: var(--tg-theme-secondary-bg-color);
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid var(--tg-theme-hint-color);
+  background: rgba(26, 26, 62, 0.6);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 20px;
+  border: 2px solid rgba(167, 139, 250, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.question-item:hover {
+  border-color: rgba(167, 139, 250, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(108, 92, 231, 0.3);
 }
 
 .view-mode {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: 16px;
 }
 
 .question-text {
   flex: 1;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   word-wrap: break-word;
+  color: #ffffff;
+  font-weight: 500;
 }
 
 .question-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .edit-button,
 .delete-button {
-  background: transparent;
-  border: none;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 8px;
   font-size: 20px;
-  padding: 4px 8px;
+  padding: 8px 12px;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  transition: all 0.3s ease;
 }
 
-.edit-button:hover,
+.edit-button:hover {
+  background: rgba(167, 139, 250, 0.2);
+  border-color: #a78bfa;
+  transform: scale(1.1);
+}
+
 .delete-button:hover {
-  opacity: 1;
+  background: rgba(255, 107, 107, 0.2);
+  border-color: #ff6b6b;
+  transform: scale(1.1);
 }
 
 .delete-button:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+  transform: none;
 }
 
 .edit-mode {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .edit-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 .save-button {
-  background: var(--tg-theme-button-color);
-  color: var(--tg-theme-button-text-color);
-  padding: 8px 16px;
-  border-radius: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(108, 92, 231, 0.4);
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
 }
 
 .save-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .cancel-button {
-  background: var(--tg-theme-secondary-bg-color);
-  color: var(--tg-theme-text-color);
-  padding: 8px 16px;
-  border-radius: 6px;
+  background: rgba(26, 26, 62, 0.8);
+  color: #ffffff;
+  padding: 10px 24px;
+  border-radius: 10px;
   font-size: 14px;
-  border: 1px solid var(--tg-theme-hint-color);
+  border: 2px solid rgba(167, 139, 250, 0.3);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(26, 26, 62, 1);
 }
 
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   color: var(--tg-theme-hint-color);
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 

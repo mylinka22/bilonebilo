@@ -34,7 +34,14 @@ export default function Admin({ onBackToGame }: AdminProps) {
   if (isLoading) {
     return (
       <div className="admin-container">
-        <div className="loading">Загрузка...</div>
+        <div className="loading">
+          <div className="loading-spinner">
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+            <div className="spinner-ring"></div>
+          </div>
+          <p className="loading-text">Загрузка...</p>
+        </div>
       </div>
     );
   }
@@ -43,7 +50,8 @@ export default function Admin({ onBackToGame }: AdminProps) {
     return (
       <div className="admin-container">
         <div className="error">
-          <p>Ошибка: {error}</p>
+          <div className="error-icon">⚠️</div>
+          <p className="error-message">Ошибка: {error}</p>
           <button onClick={loadQuestions} className="retry-button">
             Попробовать снова
           </button>
