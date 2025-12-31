@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   padding: 8px 12px;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 60px);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 80px);
   max-width: 500px;
   margin: 0 auto;
   position: relative;
@@ -30,7 +30,7 @@
 }
 
 .game-header h1 {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 700;
   margin-bottom: 4px;
   color: var(--tg-theme-text-color);
@@ -148,7 +148,7 @@
 @media (max-width: 480px) {
   .game-container {
     padding: 6px 10px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px) + 60px);
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px) + 80px);
   }
   
   .game-header {
@@ -157,7 +157,7 @@
   }
   
   .game-header h1 {
-    font-size: 24px;
+    font-size: 30px;
     margin-bottom: 2px;
   }
   
