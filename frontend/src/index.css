@@ -32,14 +32,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--tg-theme-bg-color);
   color: var(--tg-theme-text-color);
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 #root {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 button {
