@@ -33,11 +33,9 @@ body {
   background-color: var(--tg-theme-bg-color);
   color: var(--tg-theme-text-color);
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height for mobile */
   overflow: hidden;
   position: fixed;
   width: 100%;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 #root {
