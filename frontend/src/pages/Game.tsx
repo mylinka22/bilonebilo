@@ -28,12 +28,31 @@ export default function Game({ onAdminClick }: GameProps) {
     try {
       setIsLoading(true);
       setError(null);
+      
+      // Добавляем таймаут для запроса
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд
+      
       const data = await fetchQuestions();
+      clearTimeout(timeoutId);
+      
       setAllQuestions(data);
       // Инициализируем доступные вопросы (перемешанные)
       setAvailableQuestions(shuffle([...data]));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ошибка загрузки вопросов');
+      let errorMessage = 'Ошибка загрузки вопросов';
+      
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          errorMessage = 'Превышено время ожидания. Проверьте доступность сервера.';
+        } else if (err.message.includes('fetch') || err.message.includes('Failed to fetch')) {
+          errorMessage = 'Не удалось подключиться к серверу. Проверьте, что backend запущен и доступен.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
       console.error('Failed to load questions:', err);
     } finally {
       setIsLoading(false);
