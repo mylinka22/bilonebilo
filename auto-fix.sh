@@ -79,8 +79,19 @@ echo "5. Обновление кода из GitHub..."
 git pull
 echo ""
 
-# 6. Пересборка frontend
-echo "6. Пересборка frontend..."
+# 6. Пересборка backend (важно: backend теперь слушает на всех интерфейсах)
+echo "6. Пересборка backend..."
+echo -e "${YELLOW}⏳ Пересобираю backend с исправлением...${NC}"
+$DOCKER_CMD compose build --no-cache backend
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Backend пересобран${NC}"
+else
+    echo -e "${RED}❌ Ошибка при сборке backend${NC}"
+fi
+echo ""
+
+# 7. Пересборка frontend
+echo "7. Пересборка frontend..."
 echo -e "${YELLOW}⏳ Это может занять несколько минут...${NC}"
 $DOCKER_CMD compose build --no-cache frontend
 if [ $? -eq 0 ]; then
@@ -90,7 +101,7 @@ else
 fi
 echo ""
 
-# 7. Перезапуск
+# 8. Перезапуск
 echo "7. Перезапуск контейнеров..."
 $DOCKER_CMD compose up -d
 if [ $? -eq 0 ]; then
@@ -100,8 +111,8 @@ else
 fi
 echo ""
 
-# 8. Финальная проверка
-echo "8. Финальная проверка..."
+# 9. Финальная проверка
+echo "9. Финальная проверка..."
 sleep 5
 
 echo "Проверка backend:"
@@ -135,6 +146,10 @@ echo "Сайт должен быть доступен по адресу:"
 echo "http://95.31.42.147:8082"
 echo ""
 echo "Если проблемы остались, проверьте логи:"
-echo "docker compose logs backend"
-echo "docker compose logs frontend"
+echo "$DOCKER_CMD compose logs backend"
+echo "$DOCKER_CMD compose logs frontend"
+
+echo ""
+echo "Статус контейнеров:"
+$DOCKER_CMD compose ps
 
