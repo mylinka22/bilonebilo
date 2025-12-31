@@ -10,14 +10,17 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 1. Добавление пользователя в группу docker
-echo "1. Добавление пользователя в группу docker..."
-if groups | grep -q docker; then
-    echo -e "${GREEN}✅ Пользователь уже в группе docker${NC}"
+# 1. Проверка доступа к Docker
+echo "1. Проверка доступа к Docker..."
+if docker ps >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ Docker доступен без sudo${NC}"
+    DOCKER_CMD="docker"
+elif sudo docker ps >/dev/null 2>&1; then
+    echo -e "${YELLOW}⚠️  Docker требует sudo, использую sudo для всех команд${NC}"
+    DOCKER_CMD="sudo docker"
 else
-    echo -e "${YELLOW}⚠️  Добавляю пользователя в группу docker...${NC}"
-    sudo usermod -aG docker $USER
-    echo -e "${GREEN}✅ Пользователь добавлен. Выполните 'newgrp docker' или перелогиньтесь${NC}"
+    echo -e "${RED}❌ Docker недоступен! Установите Docker.${NC}"
+    exit 1
 fi
 echo ""
 
@@ -79,12 +82,22 @@ echo ""
 # 6. Пересборка frontend
 echo "6. Пересборка frontend..."
 echo -e "${YELLOW}⏳ Это может занять несколько минут...${NC}"
-docker compose build --no-cache frontend
+$DOCKER_CMD compose build --no-cache frontend
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Frontend пересобран${NC}"
+else
+    echo -e "${RED}❌ Ошибка при сборке frontend${NC}"
+fi
 echo ""
 
 # 7. Перезапуск
 echo "7. Перезапуск контейнеров..."
-docker compose up -d
+$DOCKER_CMD compose up -d
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Контейнеры перезапущены${NC}"
+else
+    echo -e "${RED}❌ Ошибка при перезапуске${NC}"
+fi
 echo ""
 
 # 8. Финальная проверка
