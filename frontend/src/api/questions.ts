@@ -5,13 +5,23 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Получить все вопросы
 export async function fetchQuestions(): Promise<Question[]> {
-  const response = await fetch(`${API_URL}/questions`);
-  
-  if (!response.ok) {
-    throw new Error('Failed to fetch questions');
+  try {
+    const response = await fetch(`${API_URL}/questions`);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error:', response.status, errorText);
+      throw new Error(`Failed to fetch questions: ${response.status} ${response.statusText}`);
+    }
+    
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('Network error:', error);
+      throw new Error(`Не удалось подключиться к серверу. Проверьте VITE_API_URL: ${API_URL}`);
+    }
+    throw error;
   }
-  
-  return response.json();
 }
 
 // Создать новый вопрос
