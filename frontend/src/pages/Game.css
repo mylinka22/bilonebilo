@@ -47,12 +47,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 0;
+  min-height: 400px;
   margin: 24px 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  height: calc(100vh - 300px);
-  max-height: 500px;
 }
 
 @keyframes fadeIn {
@@ -168,8 +166,7 @@
   
   .card-section {
     margin: 16px 0;
-    height: calc(100vh - 280px);
-    max-height: 450px;
+    min-height: 350px;
   }
   
   .card-placeholder {
