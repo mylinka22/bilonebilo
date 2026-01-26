@@ -248,18 +248,38 @@
     </div>
 
     <script>
-        let allQuestions = [];
+        // Use a unique name for the local state
+        let _allQuestionsData = [];
 
         async function loadQuestions() {
             showLoading(true);
             try {
-                const res = await window.fetch('/api/questions');
-                if (!res.ok) throw new Error('Ошибка сервера: ' + res.status);
-                allQuestions = await res.json();
-                renderQuestions(allQuestions);
+                console.log('Fetching questions...');
+                const response = await window.fetch('/api/questions');
+
+                if (!response) {
+                    throw new Error('Критическая ошибка: fetch не вернул ответ');
+                }
+
+                if (!response.ok) {
+                    let errorText = '';
+                    try {
+                        const errorJson = await response.json();
+                        errorText = errorJson.error || response.statusText;
+                    } catch (e) {
+                        errorText = await response.text() || response.statusText;
+                    }
+                    throw new Error(`Ошибка сервера (${response.status}): ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('Questions loaded:', data);
+
+                _allQuestionsData = Array.isArray(data) ? data : [];
+                renderQuestions(_allQuestionsData);
             } catch (e) {
-                console.error('Fetch error:', e);
-                alert('Ошибка загрузки: ' + e.message);
+                console.error('Detailed Load Error:', e);
+                alert('Ошибка при загрузке: ' + (e.message || 'Неизвестная ошибка'));
             } finally {
                 showLoading(false);
             }
@@ -267,6 +287,8 @@
 
         function renderQuestions(data) {
             const container = document.getElementById('questionsContainer');
+            if (!container) return;
+
             if (!data || data.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -279,9 +301,9 @@
 
             container.innerHTML = data.map(q => `
                 <div class="question-card">
-                    <div style="margin-bottom:20px">${escapeHtml(q.text)}</div>
+                    <div style="margin-bottom:20px; word-break: break-word;">${escapeHtml(q.text)}</div>
                     <div style="display:flex; justify-content:flex-end; gap:10px">
-                        <button class="action-btn" onclick="openModal(${q.id}, '${q.text.replace(/'/g, "\\'")}')">✏️ Edit</button>
+                        <button class="action-btn" onclick="openModal(${q.id}, '${q.text.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">✏️ Edit</button>
                         <button class="action-btn" onclick="deleteQuestion(${q.id})" style="color:#f43f5e">🗑️ Delete</button>
                     </div>
                 </div>
@@ -289,8 +311,8 @@
         }
 
         function filter() {
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allQuestions.filter(x => x.text.toLowerCase().includes(q));
+            const query = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const filtered = _allQuestionsData.filter(x => (x.text || '').toLowerCase().includes(query));
             renderQuestions(filtered);
         }
 
@@ -301,21 +323,31 @@
 
             showLoading(true);
             try {
-                const res = await window.fetch(id ? '/api/questions/' + id : '/api/questions', {
-                    method: id ? 'PUT' : 'POST',
+                const url = id ? `/api/questions/${id}` : '/api/questions';
+                const method = id ? 'PUT' : 'POST';
+
+                const response = await window.fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text })
                 });
 
-                if (res.ok) {
-                    closeModal();
-                    await loadQuestions();
-                } else {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error || 'Ошибка сохранения');
+                if (!response.ok) {
+                    let errorMsg = '';
+                    try {
+                        const errData = await response.json();
+                        errorMsg = errData.error || response.statusText;
+                    } catch (e) {
+                        errorMsg = await response.text() || response.statusText;
+                    }
+                    throw new Error(errorMsg);
                 }
+
+                closeModal();
+                await loadQuestions();
             } catch (e) {
-                alert('Ошибка: ' + e.message);
+                console.error('Detailed Save Error:', e);
+                alert('Ошибка при сохранении: ' + e.message);
             } finally {
                 showLoading(false);
             }
@@ -325,31 +357,47 @@
             if (!confirm('Удалить этот вопрос?')) return;
             showLoading(true);
             try {
-                const res = await window.fetch('/api/questions/' + id, { method: 'DELETE' });
-                if (!res.ok) throw new Error('Ошибка удаления');
+                const response = await window.fetch(`/api/questions/${id}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error('Не удалось удалить вопрос (код ' + response.status + ')');
+                }
                 await loadQuestions();
             } catch (e) {
-                alert('Ошибка: ' + e.message);
+                console.error('Detailed Delete Error:', e);
+                alert('Ошибка при удалении: ' + e.message);
             } finally {
                 showLoading(false);
             }
         }
 
         function openModal(id = null, text = '') {
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('modalTitle').textContent = id ? 'Редактировать вопрос' : 'Новый вопрос';
-            document.getElementById('editId').value = id || '';
-            document.getElementById('questionText').value = text;
-            setTimeout(() => document.getElementById('questionText').focus(), 100);
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modalTitle');
+            const idInput = document.getElementById('editId');
+            const textInput = document.getElementById('questionText');
+
+            if (!modal || !title || !idInput || !textInput) return;
+
+            modal.style.display = 'flex';
+            title.textContent = id ? 'Редактировать вопрос' : 'Новый вопрос';
+            idInput.value = id || '';
+            textInput.value = text;
+
+            setTimeout(() => textInput.focus(), 50);
         }
 
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            if (modal) modal.style.display = 'none';
+        }
 
         function showLoading(s) {
-            document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.style.display = s ? 'flex' : 'none';
         }
 
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -361,7 +409,8 @@
             if (event.target == modal) closeModal();
         }
 
-        loadQuestions();
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadQuestions);
     </script>
 </body>
 
