@@ -1,25 +1,18 @@
 import express from 'express';
-import { supabase } from '../supabase.js';
+import { pool } from '../db.js';
 
 const router = express.Router();
 
 // Получить все вопросы
 router.get('/', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('questions')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching questions:', error);
-      return res.status(500).json({ error: 'Failed to fetch questions' });
-    }
-
-    res.json(data || []);
+    const result = await pool.query(
+      'SELECT * FROM questions ORDER BY created_at DESC'
+    );
+    res.json(result.rows || []);
   } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching questions:', error);
+    res.status(500).json({ error: 'Failed to fetch questions' });
   }
 });
 
@@ -32,21 +25,15 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Question text is required' });
     }
 
-    const { data, error } = await supabase
-      .from('questions')
-      .insert([{ text: text.trim() }])
-      .select()
-      .single();
+    const result = await pool.query(
+      'INSERT INTO questions (text) VALUES ($1) RETURNING *',
+      [text.trim()]
+    );
 
-    if (error) {
-      console.error('Error creating question:', error);
-      return res.status(500).json({ error: 'Failed to create question' });
-    }
-
-    res.status(201).json(data);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error creating question:', error);
+    res.status(500).json({ error: 'Failed to create question' });
   }
 });
 
@@ -60,26 +47,19 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Question text is required' });
     }
 
-    const { data, error } = await supabase
-      .from('questions')
-      .update({ text: text.trim() })
-      .eq('id', id)
-      .select()
-      .single();
+    const result = await pool.query(
+      'UPDATE questions SET text = $1 WHERE id = $2 RETURNING *',
+      [text.trim(), id]
+    );
 
-    if (error) {
-      console.error('Error updating question:', error);
-      return res.status(500).json({ error: 'Failed to update question' });
-    }
-
-    if (!data) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Question not found' });
     }
 
-    res.json(data);
+    res.json(result.rows[0]);
   } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error updating question:', error);
+    res.status(500).json({ error: 'Failed to update question' });
   }
 });
 
@@ -88,20 +68,19 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { error } = await supabase
-      .from('questions')
-      .delete()
-      .eq('id', id);
+    const result = await pool.query(
+      'DELETE FROM questions WHERE id = $1',
+      [id]
+    );
 
-    if (error) {
-      console.error('Error deleting question:', error);
-      return res.status(500).json({ error: 'Failed to delete question' });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Question not found' });
     }
 
     res.status(204).send();
   } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error deleting question:', error);
+    res.status(500).json({ error: 'Failed to delete question' });
   }
 });
 
