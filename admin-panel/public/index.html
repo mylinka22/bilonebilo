@@ -44,6 +44,7 @@
             margin: 0;
             background: linear-gradient(to right, #a78bfa, #f472b6);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 700;
         }
@@ -247,25 +248,41 @@
     </div>
 
     <script>
-        let all = [];
-        async function fetch() {
-            show(true);
+        let allQuestions = [];
+
+        async function loadQuestions() {
+            showLoading(true);
             try {
                 const res = await window.fetch('/api/questions');
-                all = await res.json();
-                render(all);
-            } catch (e) { alert(e.message); }
-            finally { show(false); }
+                if (!res.ok) throw new Error('Ошибка сервера: ' + res.status);
+                allQuestions = await res.json();
+                renderQuestions(allQuestions);
+            } catch (e) {
+                console.error('Fetch error:', e);
+                alert('Ошибка загрузки: ' + e.message);
+            } finally {
+                showLoading(false);
+            }
         }
 
-        function render(data) {
-            const c = document.getElementById('questionsContainer');
-            c.innerHTML = data.map(q => `
+        function renderQuestions(data) {
+            const container = document.getElementById('questionsContainer');
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p>Вопросов пока нет. Создайте первый!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(q => `
                 <div class="question-card">
-                    <div style="margin-bottom:20px">${q.text}</div>
+                    <div style="margin-bottom:20px">${escapeHtml(q.text)}</div>
                     <div style="display:flex; justify-content:flex-end; gap:10px">
                         <button class="action-btn" onclick="openModal(${q.id}, '${q.text.replace(/'/g, "\\'")}')">✏️ Edit</button>
-                        <button class="action-btn" onclick="del(${q.id})" style="color:#f43f5e">🗑️ Delete</button>
+                        <button class="action-btn" onclick="deleteQuestion(${q.id})" style="color:#f43f5e">🗑️ Delete</button>
                     </div>
                 </div>
             `).join('');
@@ -273,44 +290,78 @@
 
         function filter() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            render(all.filter(x => x.text.toLowerCase().includes(q)));
+            const filtered = allQuestions.filter(x => x.text.toLowerCase().includes(q));
+            renderQuestions(filtered);
         }
 
         async function save() {
             const id = document.getElementById('editId').value;
             const text = document.getElementById('questionText').value.trim();
             if (!text) return;
-            show(true);
+
+            showLoading(true);
             try {
                 const res = await window.fetch(id ? '/api/questions/' + id : '/api/questions', {
                     method: id ? 'PUT' : 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text })
                 });
-                if (res.ok) { closeModal(); await fetch(); }
-            } catch (e) { alert(e.message); }
-            finally { show(false); }
+
+                if (res.ok) {
+                    closeModal();
+                    await loadQuestions();
+                } else {
+                    const errorData = await res.json();
+                    throw new Error(errorData.error || 'Ошибка сохранения');
+                }
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            } finally {
+                showLoading(false);
+            }
         }
 
-        async function del(id) {
-            if (!confirm('Удалить?')) return;
-            show(true);
+        async function deleteQuestion(id) {
+            if (!confirm('Удалить этот вопрос?')) return;
+            showLoading(true);
             try {
-                await window.fetch('/api/questions/' + id, { method: 'DELETE' });
-                await fetch();
-            } finally { show(false); }
+                const res = await window.fetch('/api/questions/' + id, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Ошибка удаления');
+                await loadQuestions();
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            } finally {
+                showLoading(false);
+            }
         }
 
         function openModal(id = null, text = '') {
             document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modalTitle').textContent = id ? 'Редактировать вопрос' : 'Новый вопрос';
             document.getElementById('editId').value = id || '';
             document.getElementById('questionText').value = text;
+            setTimeout(() => document.getElementById('questionText').focus(), 100);
         }
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
-        function show(s) { document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none'; }
 
-        fetch();
+        function showLoading(s) {
+            document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Close modal on click outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('modal');
+            if (event.target == modal) closeModal();
+        }
+
+        loadQuestions();
     </script>
 </body>
 

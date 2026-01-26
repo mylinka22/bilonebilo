@@ -21,7 +21,6 @@ declare global {
 }
 
 function App() {
-  const [isAdminMode, setIsAdminMode] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -30,9 +29,6 @@ function App() {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
 
-      // Проверка прав администратора
-      const admin = isAdmin();
-      setIsAdminMode(admin);
       setIsInitialized(true);
 
       // Применение темы Telegram
@@ -81,11 +77,7 @@ function App() {
 
   return (
     <div className="app" style={{ position: 'relative', overflow: 'hidden' }}>
-      {isAdminMode ? (
-        <Admin onBackToGame={() => setIsAdminMode(false)} />
-      ) : (
-        <Game onAdminClick={isAdmin() ? () => setIsAdminMode(true) : undefined} />
-      )}
+      <Game />
     </div>
   );
 }
