@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import Game from './pages/Game';
-import Admin from './pages/Admin';
-import { isAdmin } from './utils/admin';
 
 declare global {
   interface Window {

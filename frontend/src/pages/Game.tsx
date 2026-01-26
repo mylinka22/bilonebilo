@@ -4,14 +4,9 @@ import GameControls from '../components/GameControls';
 import { fetchQuestions } from '../api/questions';
 import { shuffle } from '../utils/shuffle';
 import { Question } from '../types';
-import { isAdmin } from '../utils/admin';
 import './Game.css';
 
-interface GameProps {
-  onAdminClick?: () => void;
-}
-
-export default function Game({ onAdminClick }: GameProps) {
+export default function Game() {
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [availableQuestions, setAvailableQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -28,20 +23,20 @@ export default function Game({ onAdminClick }: GameProps) {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Добавляем таймаут для запроса
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 секунд
-      
+
       const data = await fetchQuestions();
       clearTimeout(timeoutId);
-      
+
       setAllQuestions(data);
       // Инициализируем доступные вопросы (перемешанные)
       setAvailableQuestions(shuffle([...data]));
     } catch (err) {
       let errorMessage = 'Ошибка загрузки вопросов';
-      
+
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
           errorMessage = 'Превышено время ожидания. Проверьте доступность сервера.';
@@ -51,7 +46,7 @@ export default function Game({ onAdminClick }: GameProps) {
           errorMessage = err.message;
         }
       }
-      
+
       setError(errorMessage);
       console.error('Failed to load questions:', err);
     } finally {
@@ -67,13 +62,13 @@ export default function Game({ onAdminClick }: GameProps) {
     // Выбираем случайный вопрос из доступных
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     const selectedQuestion = availableQuestions[randomIndex];
-    
+
     // Удаляем выбранный вопрос из доступных
     const newAvailable = availableQuestions.filter(
       (q) => q.id !== selectedQuestion.id
     );
     setAvailableQuestions(newAvailable);
-    
+
     if (currentQuestion) {
       // Переворачиваем карту обратно
       setIsFlipped(false);
@@ -137,7 +132,7 @@ export default function Game({ onAdminClick }: GameProps) {
         <div className="decoration-circle circle-2"></div>
         <div className="decoration-circle circle-3"></div>
       </div>
-      
+
       <div className="game-header">
         <h1>Было / Не было</h1>
         <p className="subtitle">Вытяните карту и узнайте, что было у других</p>
@@ -163,8 +158,6 @@ export default function Game({ onAdminClick }: GameProps) {
 
       <GameControls
         onDrawCard={handleDrawCard}
-        onAdminClick={onAdminClick}
-        isAdmin={isAdmin()}
         availableCount={availableQuestions.length}
         onReset={availableQuestions.length === 0 ? handleResetSession : undefined}
       />
