@@ -1,135 +1,317 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Admin Panel</title>
+    <title>Game Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #a78bfa;
-            --bg: #111827;
-            --card: #1f2937;
-            --text: #f3f4f6;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #f43f5e;
+            --success: #10b981;
         }
+
         body {
-            font-family: 'Inter', system-ui, sans-serif;
+            font-family: 'Outfit', sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
+            line-height: 1.5;
         }
+
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
-        h1 { color: var(--primary); text-align: center; }
-        .form-group {
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .stats-bar {
             background: var(--card);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-        textarea {
-            width: 100%;
-            background: #374151;
-            border: 1px solid #4b5563;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-            resize: vertical;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button.delete { background: #ef4444; }
-        button.edit { background: #3b82f6; }
-        .question-card {
-            background: var(--card);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 15px 25px;
+            border-radius: 16px;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .question-content { flex: 1; margin-right: 15px; }
-        .actions { display: flex; gap: 8px; }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .new-question-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-question-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            resize: vertical;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .questions-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .question-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .action-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🛠 Mini Admin Panel</h1>
-        
-        <div class="form-group">
-            <h3>Добавить новый вопрос</h3>
-            <textarea id="newQuestionText" rows="3" placeholder="Введите текст вопроса..."></textarea>
-            <button onclick="addQuestion()">➕ Добавить</button>
-        </div>
 
-        <div id="questionsList"></div>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+    <div class="container">
+        <header>
+            <h1>🚀 Game Admin</h1>
+        </header>
+        <div class="stats-bar">
+            <div class="search-box"><input type="text" id="searchInput" placeholder="Поиск..." oninput="filter()"></div>
+            <button class="new-question-btn" onclick="openModal()">➕ Добавить</button>
+        </div>
+        <div id="questionsContainer" class="questions-grid"></div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Новый вопрос</h3>
+            <input type="hidden" id="editId">
+            <textarea id="questionText" rows="5"></textarea>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+                <button class="btn-save" onclick="save()">Сохранить</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        async function fetchQuestions() {
-            const res = await fetch('/api/questions');
-            const questions = await res.json();
-            const list = document.getElementById('questionsList');
-            list.innerHTML = '';
-            questions.forEach(q => {
-                const div = document.createElement('div');
-                div.className = 'question-card';
-                div.innerHTML = `
-                    <div class="question-content">${q.text}</div>
-                    <div class="actions">
-                        <button class="edit" onclick="editQuestion(${q.id}, '${q.text.replace(/'/g, "\\'")}')">✏️</button>
-                        <button class="delete" onclick="deleteQuestion(${q.id})">🗑️</button>
+        let all = [];
+        async function fetch() {
+            show(true);
+            try {
+                const res = await window.fetch('/api/questions');
+                all = await res.json();
+                render(all);
+            } catch (e) { alert(e.message); }
+            finally { show(false); }
+        }
+
+        function render(data) {
+            const c = document.getElementById('questionsContainer');
+            c.innerHTML = data.map(q => `
+                <div class="question-card">
+                    <div style="margin-bottom:20px">${q.text}</div>
+                    <div style="display:flex; justify-content:flex-end; gap:10px">
+                        <button class="action-btn" onclick="openModal(${q.id}, '${q.text.replace(/'/g, "\\'")}')">✏️ Edit</button>
+                        <button class="action-btn" onclick="del(${q.id})" style="color:#f43f5e">🗑️ Delete</button>
                     </div>
-                `;
-                list.appendChild(div);
-            });
+                </div>
+            `).join('');
         }
 
-        async function addQuestion() {
-            const text = document.getElementById('newQuestionText').value;
+        function filter() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            render(all.filter(x => x.text.toLowerCase().includes(q)));
+        }
+
+        async function save() {
+            const id = document.getElementById('editId').value;
+            const text = document.getElementById('questionText').value.trim();
             if (!text) return;
-            await fetch('/api/questions', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
-            });
-            document.getElementById('newQuestionText').value = '';
-            fetchQuestions();
+            show(true);
+            try {
+                const res = await window.fetch(id ? '/api/questions/' + id : '/api/questions', {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                if (res.ok) { closeModal(); await fetch(); }
+            } catch (e) { alert(e.message); }
+            finally { show(false); }
         }
 
-        async function deleteQuestion(id) {
-            if (!confirm('Вы уверены?')) return;
-            await fetch(\`/api/questions/\${id}\`, { method: 'DELETE' });
-            fetchQuestions();
+        async function del(id) {
+            if (!confirm('Удалить?')) return;
+            show(true);
+            try {
+                await window.fetch('/api/questions/' + id, { method: 'DELETE' });
+                await fetch();
+            } finally { show(false); }
         }
 
-        async function editQuestion(id, oldText) {
-            const newText = prompt('Редактировать вопрос:', oldText);
-            if (newText === null || newText === oldText) return;
-            await fetch(\`/api/questions/\${id}\`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: newText })
-            });
-            fetchQuestions();
+        function openModal(id = null, text = '') {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('editId').value = id || '';
+            document.getElementById('questionText').value = text;
         }
 
-        fetchQuestions();
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function show(s) { document.getElementById('loadingOverlay').style.display = s ? 'flex' : 'none'; }
+
+        fetch();
     </script>
 </body>
+
 </html>
