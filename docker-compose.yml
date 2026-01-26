@@ -71,6 +71,23 @@ services:
       retries: 3
       start_period: 10s
 
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: bilonebilo-admin-panel
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PANEL_PORT:-8083}:8083"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-bilonebilo}?sslmode=disable
+      - ADMIN_PANEL_PORT=8083
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bilonebilo-network
+
 volumes:
   postgres_data:
 
